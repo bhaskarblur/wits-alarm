@@ -11,7 +11,7 @@ data class AlarmDto(
 ) {
 
     fun toAlarmEntity() : AlarmEntity {
-        return AlarmEntity(id, time, name, isActive)
+        return AlarmEntity(time = time, name = name, isActive = isActive)
     }
     fun toAlarm() : AlarmModel {
         return AlarmModel(id, time, name, isActive)

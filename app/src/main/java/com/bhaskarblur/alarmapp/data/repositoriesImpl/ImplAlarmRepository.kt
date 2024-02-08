@@ -1,5 +1,6 @@
 package com.bhaskarblur.alarmapp.data.repositoriesImpl
 
+import android.util.Log
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 import com.bhaskarblur.alarmapp.domain.repositories.IAlarmRepository
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
@@ -14,6 +15,7 @@ class ImplAlarmRepository
 ) : IAlarmRepository {
     override fun createAlarm(alarmModel: AlarmModel): Flow<Resources<Long>> = flow {
         try {
+            Log.d("creatingAlarmFromRepo", "true")
             emit(
                 Resources.Success(
                     data = alarmsDb.alarmsDto().insert(alarmModel.toAlarmDto().toAlarmEntity())

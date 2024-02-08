@@ -66,7 +66,9 @@ fun AlarmItem(alarm: AlarmModel, onToggled : (id : Long, isActive : Boolean) -> 
         Switch(
             checked = checked.value,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.Blue
+                checkedThumbColor = Color.Blue,
+                checkedTrackColor = Color.Gray,
+                uncheckedTrackColor = Color.Gray,
             ),
             onCheckedChange = {
                 checked.value = it

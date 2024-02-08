@@ -1,8 +1,10 @@
 package com.bhaskarblur.alarmapp.presentation.AlarmsScreen.widgets
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,27 +17,35 @@ import androidx.compose.ui.unit.dp
 import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.AlarmsState
 
 @Composable
-fun AlarmsList(alarmsList: MutableState<AlarmsState>, onToggled : (id : Long, isActive : Boolean) -> Unit) {
+fun AlarmsList(
+    alarmsList: MutableState<AlarmsState>,
+    onToggled: (id: Long, isActive: Boolean) -> Unit
+) {
 
     Column(Modifier.fillMaxSize()) {
 
-    if (alarmsList.value.isLoading) {
+        if (alarmsList.value.isLoading) {
 
-        CircularProgressIndicator(
-            color = Color.Blue, strokeWidth = 3.dp,
-            modifier = Modifier.size(32.dp)
-        )
-    } else {
-        LazyColumn(Modifier.fillMaxWidth()) {
-            items(alarmsList.value.alarms, key = { alarm ->
-                alarm.id
-            }) { alarm ->
+            CircularProgressIndicator(
+                color = Color.Blue, strokeWidth = 3.dp,
+                modifier = Modifier.size(32.dp)
+            )
+        } else {
+            LazyColumn(Modifier.fillMaxWidth()) {
+                items(alarmsList.value.alarms.reversed(),
+                    key = { alarm -> alarm.id
+                    }) { alarm ->
 
-                AlarmItem(alarm = alarm, onToggled = { id: Long, isActive: Boolean ->
-                    onToggled(id, isActive)
-                })
+                    Column {
+                        AlarmItem(
+                            alarm = alarm, onToggled = { id: Long, isActive: Boolean ->
+                                onToggled(id, isActive)
+                            })
+
+                        Spacer(modifier = Modifier.height(14.dp))
+                    }
+                }
             }
         }
     }
-}
 }
