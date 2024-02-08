@@ -26,6 +26,7 @@ import java.util.TimeZone
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
 @HiltViewModel
@@ -151,8 +152,10 @@ class AlarmViewModel
         val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java) as AlarmManager
 
         val cal : Calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault())
-        val date = Date()
-        cal.set(Calendar.SECOND, date.seconds + 5)
+        val date = Date(time)
+        cal.timeInMillis = time
+        Log.d("timeMillis", "${cal.timeInMillis}")
+        Log.d("timeText", "${UiUtils.getDateTime(cal.timeInMillis.toString())}")
 
         val intent = Intent(context, AlarmReceiver::class.java)
         intent.putExtra("INTENT_NOTIFY", true)
