@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bhaskarblur.alarmapp.AlarmReceiver
+import com.bhaskarblur.alarmapp.Alarms.AlarmReceiver
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 import com.bhaskarblur.alarmapp.domain.usecases.AlarmUseCase
 import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.AlarmsState
@@ -24,10 +24,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
 
 @HiltViewModel
 class AlarmViewModel
@@ -152,7 +148,6 @@ class AlarmViewModel
         val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java) as AlarmManager
 
         val cal : Calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault())
-        val date = Date(time)
         cal.timeInMillis = time
         Log.d("timeMillis", "${cal.timeInMillis}")
         Log.d("timeText", "${UiUtils.getDateTime(cal.timeInMillis.toString())}")

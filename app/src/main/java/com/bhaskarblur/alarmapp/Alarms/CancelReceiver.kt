@@ -1,4 +1,4 @@
-package com.bhaskarblur.alarmapp
+package com.bhaskarblur.alarmapp.Alarms
 
 import android.app.AlarmManager
 import android.app.NotificationManager

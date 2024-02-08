@@ -28,8 +28,8 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".AlarmReceiver"/>
-        <receiver android:name=".CancelReceiver"/>
+        <receiver android:name=".Alarms.AlarmReceiver"/>
+        <receiver android:name=".Alarms.CancelReceiver"/>
     </application>
 
 </manifest>
