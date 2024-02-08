@@ -37,7 +37,8 @@ class AppModules {
 
     @Provides
     @Singleton
-    fun providesAlarmViewModel(alarmUseCase: AlarmUseCase) : AlarmViewModel {
-        return AlarmViewModel(alarmUseCase)
+    fun providesAlarmViewModel(alarmUseCase: AlarmUseCase, @ApplicationContext
+    context: Context) : AlarmViewModel {
+        return AlarmViewModel(alarmUseCase, context)
     }
 }

@@ -38,7 +38,7 @@ fun DatePicker( dateDialogState : MaterialDialogState,
         }
     ) {
         timepicker(
-            initialTime = LocalTime.NOON,
+            initialTime = LocalTime.now(),
             title = "Pick a time",
         ) {
             onTimePicked(it)

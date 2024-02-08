@@ -28,8 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 import com.bhaskarblur.alarmapp.presentation.AlarmViewModel
+import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.widgets.AlarmDialog
 import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.widgets.AlarmsList
 import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.widgets.DatePicker
+import com.bhaskarblur.alarmapp.presentation.UIEvents
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -93,75 +95,25 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
     val openDialog = remember { mutableStateOf(false) }
 
     if (openDialog.value) {
-        val name = remember {
-            mutableStateOf("")
-        }
-        AlertDialog(
-            onDismissRequest = {
-                openDialog.value = false
-            },
-            title = {
-                Text(
-                    text = "Set Alarm", fontSize = 22.sp, color = Color.Black,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            },
-            text = {
-                // add text field here
-                Column(Modifier.padding(top = 12.dp)) {
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                    TextField(
-                        value = name.value, onValueChange = {
-                            name.value = it
-                        },
-                        placeholder = {
-                            Text(text = "Enter name of the alarm")
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-
+        AlarmDialog(onDismiss = {
+            openDialog.value = false
+        }) { name ->
+            if(name.isNotEmpty()) {
+                viewModel.createAlarm(
+                    alarm =
+                    AlarmModel(
+                        time = pickedDateTimeStamp.value,
+                        name = name, isActive = true
                     )
-                }
-            },
-            buttons = {
-                Row(
-                    modifier = Modifier.padding(all = 8.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        modifier = Modifier.fillMaxWidth(0.5f),
-                        onClick = { openDialog.value = false },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.LightGray,
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Text("Dismiss")
-                    }
-                    Spacer(Modifier.width(12.dp))
-
-
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            viewModel.createAlarm(
-                                alarm =
-                                AlarmModel(-1, pickedDateTimeStamp.value, name.value, true)
-                            )
-                            openDialog.value = false
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Blue,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text("Set Alarm")
-                    }
-                }
+                )
+                openDialog.value = false
             }
-        )
+            else {
+                viewModel.emitUiEvent(UIEvents.ShowError(
+                    message = "Please enter the name of the alarm."
+                ))
+            }
+        }
     }
 
 
