@@ -1,4 +1,6 @@
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.util.Log
 import android.widget.DatePicker
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -11,12 +13,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,30 +29,67 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.alarmapp.presentation.AlarmViewModel
 import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.widgets.AlarmsList
-import java.util.Calendar
+import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.widgets.DatePicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 @Composable
 fun AlarmScreen(viewModel: AlarmViewModel) {
-    val selectedDateText = remember { mutableStateOf("") }
-    val calendar = Calendar.getInstance()
-    val timeText = rememberSaveable {
-        mutableStateOf("")
+
+    val context = LocalContext.current
+    val pickedDate = remember {
+        mutableStateOf(LocalDate.now())
     }
-    val time = rememberSaveable {
-        mutableLongStateOf(-1L)
+    val pickedTime = remember {
+        mutableStateOf(LocalTime.NOON)
     }
 
-    val year = calendar[Calendar.YEAR]
-    val month = calendar[Calendar.MONTH]
-    val dayOfMonth = calendar[Calendar.DAY_OF_MONTH]
+    val pickedDateTimeStamp = remember {
+        mutableStateOf(0L)
+    }
+    val dateDialogState = rememberMaterialDialogState()
+    val timeDialogState = rememberMaterialDialogState()
 
-    val datePicker = DatePickerDialog(
-        LocalContext.current,
-        { _: DatePicker, selectedYear: Int, selectedMonth: Int, selectedDayOfMonth: Int ->
-            selectedDateText.value = "$selectedDayOfMonth/${selectedMonth + 1}/$selectedYear"
-        }, year, month, dayOfMonth
+    val dateTimeText = remember {
+        mutableStateOf("Select Date time")
+    }
+
+    LaunchedEffect(pickedTime.value) {
+        dateTimeText.value = DateTimeFormatter
+            .ofPattern("MMM dd yyyy")
+            .format(pickedDate.value).toString().plus(
+                DateTimeFormatter
+                    .ofPattern(", hh:mm")
+                    .format(pickedTime.value)
+            )
+
+        val dateFormatter = SimpleDateFormat("MMM dd yyyy, HH:mm")
+        pickedDateTimeStamp.value = dateFormatter.parse(
+            DateTimeFormatter
+                .ofPattern("MMM dd yyyy")
+                .format(pickedDate.value).toString().plus(
+                    DateTimeFormatter
+                        .ofPattern(", hh:mm")
+                        .format(pickedTime.value)
+                )
+        )?.time ?: 0L
+
+        Log.d("pickedTimeStamp", pickedDateTimeStamp.value.toString())
+    }
+    DatePicker(
+        dateDialogState = dateDialogState,
+        timeDialogState = timeDialogState,
+        onDatePicked = {
+            pickedDate.value = it
+        },
+        onTimePicked = {
+            pickedTime.value = it
+        }
     )
-    datePicker.datePicker.minDate = calendar.timeInMillis
 
     Column(
         Modifier
@@ -65,39 +104,47 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
             fontWeight = FontWeight.SemiBold
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(12.dp))
 
         TextField(
-            value = timeText.value, onValueChange = {},
-            readOnly = true, modifier = Modifier
+            value = dateTimeText.value, onValueChange = {},
+            readOnly = true,
+            enabled = false,
+            colors = TextFieldDefaults.colors(
+                disabledTextColor = Color.Black
+            ),
+            modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
                 .clickable {
                     // Open DateTime Picker
-                    datePicker.show()
+
+                    Log.d("Clicked", "true")
+                    dateDialogState.show()
                 }
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(18.dp))
 
-        Button(onClick = {
-
-            if (time.longValue != -1L) {
-
-            } else {
-                // show Toast
-            }
-        },
+        Button(
+            onClick = {
+                // Open save dialog
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
-                .padding(12.dp),
+                .height(56.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Blue,
                 contentColor = Color.White
-            )) {
-            Text("Set Alarm", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center)
+            )
+        ) {
+            Text(
+                "Set Alarm",
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
+            )
         }
 
         Spacer(Modifier.height(18.dp))

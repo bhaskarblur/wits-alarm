@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.bhaskarblur.alarmapp.data.local.dto.AlarmDto
+import com.bhaskarblur.alarmapp.domain.entities.AlarmEntity
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 
 /**
@@ -13,10 +14,10 @@ import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 @Dao
 interface AlarmDAO {
     @Query("SELECT * from alarms")
-    fun getAll(): List<AlarmDto>
+    fun getAll(): List<AlarmEntity>
 
     @Insert
-    fun insert(alarm: AlarmDto) : Long
+    fun insert(alarm: AlarmEntity) : Long
 
     @Query("UPDATE alarms Set isActive = :isActive  where id LIKE :id")
     fun toggleIsActive(id:Long , isActive : Boolean)

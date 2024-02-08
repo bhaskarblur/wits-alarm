@@ -1,5 +1,6 @@
 package com.bhaskarblur.alarmapp.data.local.dto
 
+import com.bhaskarblur.alarmapp.domain.entities.AlarmEntity
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 
 data class AlarmDto(
@@ -9,6 +10,9 @@ data class AlarmDto(
     val isActive : Boolean
 ) {
 
+    fun toAlarmEntity() : AlarmEntity {
+        return AlarmEntity(id, time, name, isActive)
+    }
     fun toAlarm() : AlarmModel {
         return AlarmModel(id, time, name, isActive)
     }

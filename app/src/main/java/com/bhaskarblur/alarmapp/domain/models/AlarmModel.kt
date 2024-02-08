@@ -1,6 +1,7 @@
 package com.bhaskarblur.alarmapp.domain.models
 
 import com.bhaskarblur.alarmapp.data.local.dto.AlarmDto
+import com.bhaskarblur.alarmapp.domain.entities.AlarmEntity
 
 data class AlarmModel(
     val id : Long = 0,

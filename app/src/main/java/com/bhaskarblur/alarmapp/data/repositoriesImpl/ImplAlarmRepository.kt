@@ -16,7 +16,7 @@ class ImplAlarmRepository
         try {
             emit(
                 Resources.Success(
-                    data = alarmsDb.alarmsDto().insert(alarmModel.toAlarmDto())
+                    data = alarmsDb.alarmsDto().insert(alarmModel.toAlarmDto().toAlarmEntity())
                 )
             )
         } catch (e : Exception) {
@@ -43,7 +43,9 @@ class ImplAlarmRepository
 
     override fun getAllAlarms(): Flow<Resources<List<AlarmModel>>> = flow{
         try {
-            val alarms = alarmsDb.alarmsDto().getAll()
+            val alarms = alarmsDb.alarmsDto().getAll().map {
+                it.toAlarmDto()
+            }
             emit(Resources.Success(
                 data = alarms.map { it.toAlarm() }
             ))
