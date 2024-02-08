@@ -1,5 +1,6 @@
 package com.bhaskarblur.alarmapp.presentation.AlarmsScreen.widgets
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,7 +8,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
+import com.bhaskarblur.alarmapp.utils.UiUtils
 
 @Composable
 fun AlarmItem(alarm: AlarmModel, onToggled : (id : Long, isActive : Boolean) -> Unit) {
@@ -34,6 +38,7 @@ fun AlarmItem(alarm: AlarmModel, onToggled : (id : Long, isActive : Boolean) -> 
     Row(
         Modifier
             .fillMaxWidth()
+            .background(color = Color.LightGray, RoundedCornerShape(12.dp))
             .padding(12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically) {
@@ -50,7 +55,7 @@ fun AlarmItem(alarm: AlarmModel, onToggled : (id : Long, isActive : Boolean) -> 
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = alarm.name,
+                text = UiUtils.getDateTime(alarm.time.toString())?:"Invalid Date time",
                 color = Color.Gray,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium
@@ -60,6 +65,9 @@ fun AlarmItem(alarm: AlarmModel, onToggled : (id : Long, isActive : Boolean) -> 
 
         Switch(
             checked = checked.value,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.Blue
+            ),
             onCheckedChange = {
                 checked.value = it
                 onToggled(alarm.id, it)
