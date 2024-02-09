@@ -31,15 +31,12 @@ import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.widgets.DatePicker
 import com.bhaskarblur.alarmapp.presentation.UIEvents
 import com.bhaskarblur.alarmapp.utils.TimeUtil
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun AlarmScreen(viewModel: AlarmViewModel) {
-
-    val context = LocalContext.current
     val pickedDate = remember {
         mutableStateOf(LocalDate.now())
     }
