@@ -7,27 +7,20 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -47,6 +40,7 @@ import com.bhaskarblur.alarmapp.utils.TimeUtil
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -98,7 +92,7 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
     }
 
     val context = LocalContext.current
-    LaunchedEffect(Unit) {
+    DisposableEffect(Unit) {
         val filter = IntentFilter("com.your.package.ACTION_CANCEL_ALARM")
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -119,6 +113,9 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
             }
         }
         context.registerReceiver(receiver, filter, ComponentActivity.RECEIVER_EXPORTED)
+        onDispose {
+            context.unregisterReceiver(receiver)
+        }
     }
 
     LaunchedEffect(pickedTime.value) {
@@ -151,13 +148,28 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
         onDatePicked = {
             pickedDate.value = it
         },
-        onTimePicked = {
-            pickedTime.value = it
+        onTimePicked = { localTime: LocalTime, localDateTime: LocalDateTime ->
+             if(localDateTime.isAfter(LocalDateTime.now()) ||
+                localDateTime.isEqual(LocalDateTime.now())) {
+                pickedTime.value = localTime
+
+            } else {
+                viewModel.emitUiEvent(
+                    UIEvents.ShowError("The time cannot be in past.")
+                )
+            }
         },
         hasToChangeTime = hasToChangeTime.value,
-        onTimeChanged = { timeMillis ->
-            selectedChangeTimeStamp.value = timeMillis
-            confirmHasToChangeTime.value = true
+        onTimeChanged = { timeMillis: Long, localDateTime: LocalDateTime ->
+            if(localDateTime.isAfter(LocalDateTime.now()) ||
+                localDateTime.isEqual(LocalDateTime.now())) {
+                selectedChangeTimeStamp.value = timeMillis
+                confirmHasToChangeTime.value = true
+            } else {
+                viewModel.emitUiEvent(
+                    UIEvents.ShowError("The time cannot be in past.")
+                )
+            }
         }
     )
 

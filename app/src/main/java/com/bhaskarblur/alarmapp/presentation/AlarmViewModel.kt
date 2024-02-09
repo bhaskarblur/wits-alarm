@@ -201,16 +201,8 @@ class AlarmViewModel
         val cal : Calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault())
         cal.timeInMillis = time
         Log.d("timeText", "${UiUtils.getDateTime(cal.timeInMillis.toString())}")
+        
 
-        val alarmTime = Instant.ofEpochMilli(cal.timeInMillis)
-            .atZone(ZoneId.systemDefault()) // Make sure cal is in the desired time zone
-            .toLocalDateTime()
-
-        val alarmLocalTime = alarmTime.toLocalTime()
-//        if (getCurrentTimeAndCompareWithAlarmTime(alarmLocalTime)) {
-//            println("Alarm time has already passed.")
-//            return
-//        }
         val intent = Intent(context, AlarmReceiver::class.java)
         intent.putExtra("INTENT_NOTIFY", true)
         intent.putExtra("id", id)

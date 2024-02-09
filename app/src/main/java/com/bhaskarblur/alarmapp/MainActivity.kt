@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +18,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.bhaskarblur.alarmapp.presentation.AlarmViewModel
 import com.bhaskarblur.alarmapp.presentation.UIEvents
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,6 +35,17 @@ class MainActivity : ComponentActivity() {
             if (!shouldShowRequestPermissionRationale("112")){
                 getNotificationPermission();
             }
+        }
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.FOREGROUND_SERVICE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.FOREGROUND_SERVICE_LOCATION),
+                102
+            )
         }
         viewModel.getAllAlarms()
         setContent {

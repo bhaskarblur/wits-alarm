@@ -23,9 +23,9 @@ class NoiseAlarmService : Service() {
         startNoiseAlarm()
         Log.d("NoiseAlarmReceived", "true")
         val notiId = intent?.getIntExtra("notificationId", 101) ?: 101
+        val notificationManager = getSystemService(NotificationManager::class.java) as NotificationManager
         val notification = createNotification(intent)
-        startForeground(notiId, notification)
-
+        notificationManager.notify(notiId, notification)
         return START_STICKY
     }
 
@@ -60,6 +60,7 @@ class NoiseAlarmService : Service() {
         val notificationManager = getSystemService(NotificationManager::class.java) as NotificationManager
         val channel = NotificationChannel(notiId.toString(), "Alarm Reminder", NotificationManager.IMPORTANCE_HIGH)
         notificationManager.createNotificationChannel(channel)
+
 
         return NotificationCompat.Builder(this, notiId.toString())
             .setSmallIcon(icon)
