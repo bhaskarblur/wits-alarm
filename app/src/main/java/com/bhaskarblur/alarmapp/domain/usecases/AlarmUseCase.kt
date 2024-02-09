@@ -19,4 +19,8 @@ class AlarmUseCase @Inject constructor(
     fun getAllAlarms() : Flow<Resources<List<AlarmModel>>> {
         return alarmRepo.getAllAlarms()
     }
+
+    fun changeTime(id: Long, time: Long): Flow<Resources<Boolean>> {
+        return alarmRepo.changeTime(id, time)
+    }
 }

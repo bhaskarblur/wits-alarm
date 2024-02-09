@@ -60,4 +60,18 @@ class ImplAlarmRepository
             ))
         }
     }
+
+    override fun changeTime(id: Long, time: Long): Flow<Resources<Boolean>> = flow{
+        try {
+            alarmsDb.alarmsDto().changeTime(id, time)
+            emit(Resources.Success(data = true))
+        }
+        catch (e : Exception) {
+            e.printStackTrace()
+            emit(Resources.Error(
+                data = false,
+                message = e.message ?: "There was an error in changing time."
+            ))
+        }
+    }
 }

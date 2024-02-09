@@ -56,7 +56,7 @@ class AlarmReceiver : BroadcastReceiver() {
             .setPriority(NotificationCompat.VISIBILITY_PUBLIC)
             .setColor(Color.RED)
             .setGroup(GROUP_MESSAGE)
-            .setAutoCancel(true)
+            .setAutoCancel(false)
             .addAction(com.google.android.material.R.drawable.ic_clear_black_24, "Cancel Alarm", cancelPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .build()

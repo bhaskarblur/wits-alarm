@@ -75,6 +75,46 @@ class AlarmViewModel
             }
         }
     }
+
+    fun changeAlarmTime(id : Long, time : Long) {
+        viewModelScope.launch {
+            alarmUseCase.changeTime(id, time).collectLatest { result ->
+                Log.d("changingTimeFromVM", result.data.toString())
+                when(result.data) {
+                    true -> {
+                        val alarm = _alarmsList.value.alarms.find {
+                            it.id == id
+                        }
+                        _alarmsList.value = _alarmsList.value.apply {
+                            alarms.find {
+                                it.id == id
+                            }?.time = time
+                        }
+                        alarm?.let {
+                            // Cancel old alarm time
+                            setAlarm(
+                                isActive = false,
+                                id = alarm.id, time = alarm.time,
+                                name = alarm.name)
+
+                            // Set new alarm time
+                            setAlarm(
+                                isActive = true,
+                                id = alarm.id, time = time,
+                                name = alarm.name)
+                        }
+
+                    }
+                    else -> {
+                        // generate an error here
+                        emitUiEvent(UIEvents.ShowError(
+                            message = result.message.toString()
+                        ))
+                    }
+                }
+            }
+        }
+    }
     fun emitUiEvent(event: UIEvents) {
         viewModelScope.launch {
             eventFlow.emit(event)

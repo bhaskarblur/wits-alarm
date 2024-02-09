@@ -8,4 +8,6 @@ interface IAlarmRepository {
     fun createAlarm(alarmModel: AlarmModel) : Flow<Resources<Long>>
     fun toggleAlarm(id: Long, status : Boolean) : Flow<Resources<Boolean>>
     fun getAllAlarms() : Flow<Resources<List<AlarmModel>>>
+
+    fun changeTime(id: Long, time: Long) : Flow<Resources<Boolean>>
 }

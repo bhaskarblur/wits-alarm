@@ -24,18 +24,16 @@ import androidx.compose.ui.unit.sp
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 
 @Composable
-fun AlarmDialog(
-    onDismiss : () -> Unit,createAlarm : (name: String) -> Unit) {
-    val name = remember {
-        mutableStateOf("")
-    }
+fun AlarmTimeConfirmDialog(
+    onDismiss: () -> Unit, onConfirm: () -> Unit
+) {
     AlertDialog(
         onDismissRequest = {
             onDismiss()
         },
         title = {
             Text(
-                text = "Set Alarm", fontSize = 22.sp, color = Color.Black,
+                text = "Confirm Time", fontSize = 22.sp, color = Color.Black,
                 fontWeight = FontWeight.SemiBold,
             )
         },
@@ -43,18 +41,10 @@ fun AlarmDialog(
             // add text field here
             Column(Modifier.padding(top = 12.dp)) {
 
-                Spacer(modifier = Modifier.height(12.dp))
-                TextField(
-                    value = name.value, onValueChange = {
-                        name.value = it
-                    },
-                    placeholder = {
-                        Text(text = "Enter name of the alarm")
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-
+                Text(
+                    text = "Are you sure you want to change time?",
+                    fontSize = 15.sp,
+                    color = Color.Gray,
                 )
             }
         },
@@ -79,14 +69,14 @@ fun AlarmDialog(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                            createAlarm(name.value)
+                        onConfirm()
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Blue,
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Set Alarm")
+                    Text("Yes")
                 }
             }
         }

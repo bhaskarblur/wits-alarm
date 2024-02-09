@@ -19,8 +19,10 @@ interface AlarmDAO {
     @Insert
     fun insert(alarm: AlarmEntity) : Long
 
-    @Query("UPDATE alarms Set isActive = :isActive  where id LIKE :id")
+    @Query("UPDATE alarms Set isActive = :isActive where id LIKE :id")
     fun toggleIsActive(id:Long , isActive : Boolean)
 
+    @Query("UPDATE alarms Set time = :time where id LIKE :id")
+    fun changeTime(id:Long , time : Long)
 
 }

@@ -1,6 +1,7 @@
 package com.bhaskarblur.alarmapp.presentation.AlarmsScreen.widgets
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,7 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -26,7 +32,7 @@ import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 import com.bhaskarblur.alarmapp.utils.UiUtils
 
 @Composable
-fun AlarmItem(alarm: AlarmModel, onToggled : (id : Long, isActive : Boolean) -> Unit) {
+fun AlarmItem(alarm: AlarmModel, onTimeEdit : (id : Long) -> Unit, onToggled : (id : Long, isActive : Boolean) -> Unit) {
 
     val checked = remember {
         mutableStateOf(alarm.isActive)
@@ -54,12 +60,23 @@ fun AlarmItem(alarm: AlarmModel, onToggled : (id : Long, isActive : Boolean) -> 
 
             Spacer(Modifier.height(8.dp))
 
+            Row {
             Text(
                 text = UiUtils.getDateTime(alarm.time.toString())?:"Invalid Date time",
                 color = Color.Gray,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium
             )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Icon(Icons.Filled.Edit, contentDescription = "change time",
+                    tint = Color.Black, modifier = Modifier.size(22.dp)
+                        .clickable {
+                            onTimeEdit(alarm.id)
+                        })
+
+            }
         }
 
 
