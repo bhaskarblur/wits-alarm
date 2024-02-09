@@ -32,7 +32,7 @@ import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 import com.bhaskarblur.alarmapp.utils.UiUtils
 
 @Composable
-fun AlarmItem(alarm: AlarmModel, onTimeEdit : (id : Long) -> Unit, onToggled : (id : Long, isActive : Boolean) -> Unit) {
+fun AlarmItem(alarm: AlarmModel, onTimeEdit :  (id: Long, timeMillis : Long) -> Unit, onToggled : (id : Long, isActive : Boolean) -> Unit) {
 
     val checked = remember {
         mutableStateOf(alarm.isActive)
@@ -73,7 +73,7 @@ fun AlarmItem(alarm: AlarmModel, onTimeEdit : (id : Long) -> Unit, onToggled : (
                 Icon(Icons.Filled.Edit, contentDescription = "change time",
                     tint = Color.Black, modifier = Modifier.size(22.dp)
                         .clickable {
-                            onTimeEdit(alarm.id)
+                            onTimeEdit(alarm.id, alarm.time)
                         })
 
             }

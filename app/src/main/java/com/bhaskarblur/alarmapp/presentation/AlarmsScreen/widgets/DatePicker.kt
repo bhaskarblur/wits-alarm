@@ -13,12 +13,15 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun DatePicker(dateDialogState : MaterialDialogState,
+fun DatePicker(
+    currentDate : LocalDate?,
+    currentTime : LocalTime?,
+    dateDialogState : MaterialDialogState,
                timeDialogState : MaterialDialogState, onDatePicked : (LocalDate) -> Unit,
                onTimePicked : (LocalTime) -> Unit, hasToChangeTime: Boolean,
                onTimeChanged : (Long) -> Unit) {
     val selectedDate = remember {
-        mutableStateOf(LocalDate.now())
+        mutableStateOf(currentDate?:LocalDate.now())
     }
     MaterialDialog(
         dialogState = dateDialogState,
@@ -30,7 +33,7 @@ fun DatePicker(dateDialogState : MaterialDialogState,
         }
     ) {
         datepicker(
-            initialDate = LocalDate.now(),
+            initialDate = currentDate?:LocalDate.now(),
             title = "Pick a date",
         ) {
             onDatePicked(it)
@@ -46,7 +49,7 @@ fun DatePicker(dateDialogState : MaterialDialogState,
         }
     ) {
         timepicker(
-            initialTime = LocalTime.now(),
+            initialTime = currentTime ?: LocalTime.now(),
             title = "Pick a time",
         ) {time ->
             if(hasToChangeTime) {

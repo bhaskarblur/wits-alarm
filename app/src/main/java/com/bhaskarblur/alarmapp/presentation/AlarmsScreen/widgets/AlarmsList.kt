@@ -20,7 +20,7 @@ import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.AlarmsState
 fun AlarmsList(
     alarmsList: MutableState<AlarmsState>,
     onToggled: (id: Long, isActive: Boolean) -> Unit,
-    onTimeEdit: (id: Long) -> Unit
+    onTimeEdit: (id: Long, timeMillis : Long) -> Unit
 ) {
 
     Column(Modifier.fillMaxSize()) {
@@ -40,8 +40,8 @@ fun AlarmsList(
                     Column {
                         AlarmItem(
                             alarm = alarm,
-                            onTimeEdit = {id ->
-                                         onTimeEdit(id)
+                            onTimeEdit = { id: Long, time: Long ->
+                                onTimeEdit(id,time)
                             },
                             onToggled = { id: Long, isActive: Boolean ->
                                 onToggled(id, isActive)
