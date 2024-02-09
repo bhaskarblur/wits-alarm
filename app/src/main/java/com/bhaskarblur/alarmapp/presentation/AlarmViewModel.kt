@@ -188,9 +188,9 @@ class AlarmViewModel
 
     @SuppressLint("ScheduleExactAlarm")
     private fun setAlarm(isActive: Boolean, id: Long, name: String, time : Long) {
-        if(time < System.currentTimeMillis()) {
-            return
-        }
+//        if(time < System.currentTimeMillis()) {
+//            return
+//        }
         Log.d("SettingAlarm", isActive.toString())
         val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java) as AlarmManager
 
