@@ -19,8 +19,13 @@ class CancelReceiver : BroadcastReceiver() {
         val dbId = intent?.getLongExtra("id", -1) ?: -1
         val hideNotification = intent?.getBooleanExtra("hideNotification", false)
 
-        Log.d("hideNotification", hideNotification.toString())
-
+        context?.let {
+            val stopServiceIntent = Intent(context, NoiseAlarmService::class.java)
+            context.stopService(stopServiceIntent)
+            val broadcastIntent = Intent("com.your.package.ACTION_CANCEL_ALARM")
+            broadcastIntent.putExtra("alarmId", dbId)
+            context.sendBroadcast(broadcastIntent)
+        }
         cancelAlarm(context, dbId)
         if(hideNotification == true) {
             cancelNotification(context, notiId)

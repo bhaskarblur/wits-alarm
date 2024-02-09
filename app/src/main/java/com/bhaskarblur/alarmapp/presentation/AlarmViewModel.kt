@@ -16,6 +16,7 @@ import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.AlarmsState
 import com.bhaskarblur.alarmapp.utils.UiUtils
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -37,7 +38,7 @@ class AlarmViewModel
     val eventFlow = MutableSharedFlow<UIEvents>()
 
     fun toggleAlarm(id : Long, isActive : Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             alarmUseCase.toggleAlarm(id, isActive).collectLatest { result ->
                 Log.d("togglingAlarmFromVM", result.data.toString())
                 when(result.data) {
@@ -76,7 +77,7 @@ class AlarmViewModel
     }
 
     fun changeAlarmTime(id : Long, time : Long) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             alarmUseCase.changeTime(id, time).collectLatest { result ->
                 Log.d("changingTimeFromVM", result.data.toString())
                 when(result.data) {
@@ -115,12 +116,12 @@ class AlarmViewModel
         }
     }
     fun emitUiEvent(event: UIEvents) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             eventFlow.emit(event)
         }
     }
     fun createAlarm(alarm : AlarmModel) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             alarmUseCase.createAlarm(alarm).collectLatest { result ->
                 Log.d("creatingAlarmFromVM", result.data.toString())
                 when(result.data?.toInt() == -1) {
@@ -153,7 +154,10 @@ class AlarmViewModel
     }
 
     fun getAllAlarms() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            _alarmsList.value = _alarmsList.value.apply {
+                this.isLoading = true
+            }
             alarmUseCase.getAllAlarms().collectLatest {result ->
                 when(result) {
                     is Resources.Success -> {
@@ -163,6 +167,7 @@ class AlarmViewModel
                         }
                         _alarmsList.value = _alarmsList.value.apply {
                             this.alarms = alarms
+                            this.isLoading = false
                         }
                     }
                     is Resources.Error -> {
@@ -183,6 +188,9 @@ class AlarmViewModel
 
     @SuppressLint("ScheduleExactAlarm")
     private fun setAlarm(isActive: Boolean, id: Long, name: String, time : Long) {
+//        if(time < System.currentTimeMillis()) {
+//            return
+//        }
         Log.d("SettingAlarm", isActive.toString())
         val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java) as AlarmManager
 

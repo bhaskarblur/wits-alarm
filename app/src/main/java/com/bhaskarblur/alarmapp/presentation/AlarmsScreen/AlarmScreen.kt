@@ -1,18 +1,33 @@
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -35,10 +50,12 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Date
+import androidx.compose.ui.platform.LocalContext as LocalContext
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AlarmScreen(viewModel: AlarmViewModel) {
+
     val pickedDate = remember {
         mutableStateOf(LocalDate.now())
     }
@@ -46,13 +63,17 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
         mutableStateOf(LocalTime.now())
     }
     val pickedDateTimeStamp = remember {
-        mutableStateOf(TimeUtil.timeFormat.parse(DateTimeFormatter
-            .ofPattern("MMM dd yyyy")
-            .format(pickedDate.value).toString().plus(
+        mutableStateOf(
+            TimeUtil.timeFormat.parse(
                 DateTimeFormatter
-                    .ofPattern(", hh:mm")
-                    .format(pickedTime.value)
-            ))?.time?:0L)
+                    .ofPattern("MMM dd yyyy")
+                    .format(pickedDate.value).toString().plus(
+                        DateTimeFormatter
+                            .ofPattern(", hh:mm")
+                            .format(pickedTime.value)
+                    )
+            )?.time ?: 0L
+        )
     }
 
     val selectedChangeTimeStamp = remember {
@@ -76,6 +97,30 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
         mutableStateOf("Select Date time")
     }
 
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        val filter = IntentFilter("com.your.package.ACTION_CANCEL_ALARM")
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val alarmId = intent?.getLongExtra("alarmId", -1L)
+                Log.d("SwitchToggleReceived", alarmId.toString())
+                alarmId?.let {
+                    viewModel.toggleAlarm(alarmId, false)
+                    pickedDateTimeStamp.value = TimeUtil.timeFormat.parse(
+                        DateTimeFormatter
+                            .ofPattern("MMM dd yyyy")
+                            .format(pickedDate.value).toString().plus(
+                                DateTimeFormatter
+                                    .ofPattern(", hh:mm")
+                                    .format(pickedTime.value)
+                            )
+                    )?.time ?: 0L
+                }
+            }
+        }
+        context.registerReceiver(receiver, filter, ComponentActivity.RECEIVER_EXPORTED)
+    }
+
     LaunchedEffect(pickedTime.value) {
         dateTimeText.value = DateTimeFormatter
             .ofPattern("MMM dd yyyy")
@@ -86,13 +131,15 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
             )
 
         with(TimeUtil.timeFormat) {
-            pickedDateTimeStamp.value = parse(  DateTimeFormatter
-                .ofPattern("MMM dd yyyy")
-                .format(pickedDate.value).toString().plus(
-                    DateTimeFormatter
-                        .ofPattern(", hh:mm")
-                        .format(pickedTime.value)
-                ))?.time?:0L
+            pickedDateTimeStamp.value = parse(
+                DateTimeFormatter
+                    .ofPattern("MMM dd yyyy")
+                    .format(pickedDate.value).toString().plus(
+                        DateTimeFormatter
+                            .ofPattern(", hh:mm")
+                            .format(pickedTime.value)
+                    )
+            )?.time ?: 0L
         }
         Log.d("pickedTimeStamp", pickedDateTimeStamp.value.toString())
     }
@@ -116,14 +163,16 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
 
     val openDialog = remember { mutableStateOf(false) }
 
-    if(confirmHasToChangeTime.value) {
+    if (confirmHasToChangeTime.value) {
         AlarmTimeConfirmDialog(onDismiss = {
             confirmHasToChangeTime.value = false
             pickedDate.value = LocalDate.now()
             pickedTime.value = LocalTime.now()
         }) {
-            viewModel.changeAlarmTime(selectedEditId.value,
-                selectedChangeTimeStamp.value)
+            viewModel.changeAlarmTime(
+                selectedEditId.value,
+                selectedChangeTimeStamp.value
+            )
             confirmHasToChangeTime.value = false
             pickedDate.value = LocalDate.now()
             pickedTime.value = LocalTime.now()
@@ -132,10 +181,10 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
     if (openDialog.value) {
         AlarmDialog(
             onDismiss = {
-            openDialog.value = false
-        }
+                openDialog.value = false
+            }
         ) { name ->
-            if(name.isNotEmpty()) {
+            if (name.isNotEmpty()) {
                 selectedEditId.value = 0L
                 viewModel.createAlarm(
                     alarm =
@@ -144,7 +193,7 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
                         name = name, isActive = true
                     )
                 )
-                Log.d("alarmCreated","true")
+                Log.d("alarmCreated", "true")
                 val currTime = DateTimeFormatter
                     .ofPattern("MMM dd yyyy")
                     .format(LocalDate.now()).toString().plus(
@@ -153,14 +202,15 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
                             .format(LocalTime.now())
                     )
                 dateTimeText.value = currTime
-                pickedDateTimeStamp.value = TimeUtil.timeFormat.parse(currTime)?.time ?:0
+                pickedDateTimeStamp.value = TimeUtil.timeFormat.parse(currTime)?.time ?: 0
 
                 openDialog.value = false
-            }
-            else {
-                viewModel.emitUiEvent(UIEvents.ShowError(
-                    message = "Please enter the name of the alarm."
-                ))
+            } else {
+                viewModel.emitUiEvent(
+                    UIEvents.ShowError(
+                        message = "Please enter the name of the alarm."
+                    )
+                )
             }
         }
     }
@@ -222,21 +272,23 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
 
         Spacer(Modifier.height(18.dp))
 
-        Text(
-            text = "All Alarms",
-            color = Color.Black,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold
-        )
+            Text(
+                text = "All Alarms",
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+
 
         Spacer(Modifier.height(14.dp))
 
-        AlarmsList(viewModel.alarmsList, onToggled =  { id: Long, isActive: Boolean ->
+        AlarmsList(viewModel.alarmsList.value, onToggled = { id: Long, isActive: Boolean ->
             viewModel.toggleAlarm(id, isActive)
         }) { id: Long, timeMillis: Long ->
-            pickedDate.value = Instant.ofEpochMilli(timeMillis).atZone(ZoneId.systemDefault()).toLocalDate()
-            pickedTime.value = Instant.ofEpochMilli(timeMillis).atZone(ZoneId.systemDefault()).toLocalTime()
-            Log.d("changedDateTime", "${pickedDate.value}, ${pickedTime.value}")
+            pickedDate.value =
+                Instant.ofEpochMilli(timeMillis).atZone(ZoneId.systemDefault()).toLocalDate()
+            pickedTime.value =
+                Instant.ofEpochMilli(timeMillis).atZone(ZoneId.systemDefault()).toLocalTime()
             selectedEditId.value = id
             hasToChangeTime.value = true
             dateDialogState.show()

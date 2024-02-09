@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -18,22 +19,22 @@ import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.AlarmsState
 
 @Composable
 fun AlarmsList(
-    alarmsList: MutableState<AlarmsState>,
+    alarmsList: AlarmsState,
     onToggled: (id: Long, isActive: Boolean) -> Unit,
     onTimeEdit: (id: Long, timeMillis : Long) -> Unit
 ) {
 
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally) {
 
-        if (alarmsList.value.isLoading) {
-
+        if (alarmsList.isLoading) {
             CircularProgressIndicator(
                 color = Color.Blue, strokeWidth = 3.dp,
                 modifier = Modifier.size(32.dp)
             )
         } else {
             LazyColumn(Modifier.fillMaxWidth()) {
-                items(alarmsList.value.alarms.reversed(),
+                items(alarmsList.alarms.reversed(),
                     key = { alarm -> alarm.id
                     }) { alarm ->
 
