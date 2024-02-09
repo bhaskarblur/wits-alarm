@@ -13,6 +13,7 @@ import com.bhaskarblur.alarmapp.Alarms.AlarmReceiver
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 import com.bhaskarblur.alarmapp.domain.usecases.AlarmUseCase
 import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.AlarmsState
+import com.bhaskarblur.alarmapp.utils.TimeUtil.getCurrentTimeAndCompareWithAlarmTime
 import com.bhaskarblur.alarmapp.utils.UiUtils
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +21,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
@@ -188,17 +194,23 @@ class AlarmViewModel
 
     @SuppressLint("ScheduleExactAlarm")
     private fun setAlarm(isActive: Boolean, id: Long, name: String, time : Long) {
-//        if(time < System.currentTimeMillis()) {
-//            return
-//        }
+
         Log.d("SettingAlarm", isActive.toString())
         val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java) as AlarmManager
 
         val cal : Calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault())
         cal.timeInMillis = time
-        Log.d("timeMillis", "${cal.timeInMillis}")
         Log.d("timeText", "${UiUtils.getDateTime(cal.timeInMillis.toString())}")
 
+        val alarmTime = Instant.ofEpochMilli(cal.timeInMillis)
+            .atZone(ZoneId.systemDefault()) // Make sure cal is in the desired time zone
+            .toLocalDateTime()
+
+        val alarmLocalTime = alarmTime.toLocalTime()
+//        if (getCurrentTimeAndCompareWithAlarmTime(alarmLocalTime)) {
+//            println("Alarm time has already passed.")
+//            return
+//        }
         val intent = Intent(context, AlarmReceiver::class.java)
         intent.putExtra("INTENT_NOTIFY", true)
         intent.putExtra("id", id)
