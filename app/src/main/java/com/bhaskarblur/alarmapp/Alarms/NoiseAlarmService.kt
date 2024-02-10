@@ -30,7 +30,7 @@ class NoiseAlarmService : Service() {
     }
 
     private fun startNoiseAlarm() {
-        mediaPlayer = MediaPlayer.create(this, R.raw.smart_alarm) // Replace with your actual sound resource
+        mediaPlayer = MediaPlayer.create(this, R.raw.smart_alarm)
         mediaPlayer.isLooping = true
         mediaPlayer.start()
     }
@@ -79,7 +79,6 @@ class NoiseAlarmService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Stop the MediaPlayer when the service is destroyed
         if (mediaPlayer.isPlaying) {
             mediaPlayer.stop()
         }
