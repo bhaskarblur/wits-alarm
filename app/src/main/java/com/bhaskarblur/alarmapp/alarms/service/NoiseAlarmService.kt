@@ -105,6 +105,16 @@ class NoiseAlarmService : Service() {
             mediaPlayer.stop()
         }
         mediaPlayer.release()
+        stopForeground(true)
+        stopSelf()
+    }
+
+    override fun onTimeout(startId: Int) {
+        super.onTimeout(startId)
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.stop()
+        }
+        mediaPlayer.release()
     }
     override fun onBind(intent: Intent?): IBinder? {
         return null
