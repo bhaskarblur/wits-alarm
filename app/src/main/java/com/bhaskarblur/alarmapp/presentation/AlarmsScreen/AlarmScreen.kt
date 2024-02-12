@@ -215,7 +215,7 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
                             .format(LocalTime.now())
                     )
                 dateTimeText.value = currTime
-                pickedDateTimeStamp.value =
+                pickedDateTimeStamp.value
                     TimeUtil.timeFormat.parse(
                         DateTimeFormatter
                             .ofPattern("MMM dd yyyy")
