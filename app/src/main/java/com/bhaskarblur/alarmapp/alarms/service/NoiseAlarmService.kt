@@ -89,6 +89,7 @@ class NoiseAlarmService : Service() {
             .setGroup(GROUP_MESSAGE)
             .setAutoCancel(false)
             .setOngoing(true)
+            .setNotificationSilent()
             .addAction(
                 com.google.android.material.R.drawable.ic_clear_black_24,
                 "Cancel Alarm",
