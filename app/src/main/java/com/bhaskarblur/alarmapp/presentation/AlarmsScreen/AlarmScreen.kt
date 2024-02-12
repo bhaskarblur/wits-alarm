@@ -91,12 +91,16 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
         mutableStateOf("Select Date time")
     }
 
+    val broadcastData = remember {
+        mutableStateOf("No data received")
+    }
     val context = LocalContext.current
     DisposableEffect(Unit) {
         val filter = IntentFilter("com.your.package.ACTION_CANCEL_ALARM")
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val alarmId = intent?.getLongExtra("alarmId", -1L)
+                broadcastData.value = "Received $alarmId from alarm"
                 Log.d("SwitchToggleReceived", alarmId.toString())
                 alarmId?.let {
                     viewModel.toggleAlarm(alarmId, false)
@@ -304,6 +308,13 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
 
         Spacer(Modifier.height(14.dp))
 
+        Text(
+            broadcastData.value,
+            color = Color.Black,
+            fontSize = 0.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center
+        )
         AlarmsList(viewModel.alarmsList.value, onToggled = { id: Long, isActive: Boolean ->
             viewModel.toggleAlarm(id, isActive)
         }) { id: Long, timeMillis: Long ->
