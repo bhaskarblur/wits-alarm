@@ -76,6 +76,7 @@ class NoiseAlarmService : Service() {
             "Alarm Reminder",
             NotificationManager.IMPORTANCE_HIGH
         )
+        channel.setSound(null, null)
         notificationManager.createNotificationChannel(channel)
 
 
@@ -89,7 +90,7 @@ class NoiseAlarmService : Service() {
             .setGroup(GROUP_MESSAGE)
             .setAutoCancel(false)
             .setOngoing(true)
-            .setNotificationSilent()
+            .setDeleteIntent(cancelPendingIntent)
             .addAction(
                 com.google.android.material.R.drawable.ic_clear_black_24,
                 "Cancel Alarm",
