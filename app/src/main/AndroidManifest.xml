@@ -36,20 +36,23 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".Alarms.NoiseAlarmService"
-            android:foregroundServiceType="location"
+        <service android:name=".alarms.service.NoiseAlarmService"
+            android:foregroundServiceType="shortService"
             android:exported="false"
             />
 
-        <receiver android:name=".Alarms.AlarmReceiver"
+        <receiver android:name=".alarms.AlarmReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="your.package.ACTION_ALARM" />
+            </intent-filter>
         </receiver>
 
-        <receiver android:name=".Alarms.CancelReceiver"
+        <receiver android:name=".alarms.CancelReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

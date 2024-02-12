@@ -48,6 +48,7 @@ fun AlarmDialog(
                     value = name.value, onValueChange = {
                         name.value = it
                     },
+                    singleLine = true,
                     placeholder = {
                         Text(text = "Enter name of the alarm")
                     },

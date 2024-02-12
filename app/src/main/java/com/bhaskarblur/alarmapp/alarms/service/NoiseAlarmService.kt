@@ -1,4 +1,4 @@
-package com.bhaskarblur.alarmapp.Alarms
+package com.bhaskarblur.alarmapp.alarms.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -13,6 +13,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.bhaskarblur.alarmapp.MainActivity
 import com.bhaskarblur.alarmapp.R
+import com.bhaskarblur.alarmapp.alarms.CancelReceiver
 
 class NoiseAlarmService : Service() {
 
@@ -20,14 +21,23 @@ class NoiseAlarmService : Service() {
     private val GROUP_MESSAGE: String = "ALARM"
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startNoiseAlarm()
+        val dbId = intent?.getLongExtra("id", -1) ?: -1
         Log.d("NoiseAlarmReceived", "true")
-        val notiId = intent?.getIntExtra("notificationId", 101) ?: 101
-        val notificationManager = getSystemService(NotificationManager::class.java) as NotificationManager
-        val notification = createNotification(intent)
-        notificationManager.notify(notiId, notification)
+            val notiId = intent?.getIntExtra("notificationId", 101) ?: 101
+            val title = intent?.getStringExtra("name") ?: ""
+            val time = intent?.getStringExtra("dateTime") ?: ""
+            val notification = createNotification(
+                title, time, notiId, dbId
+            )
+//            val notificationManager =
+//                getSystemService(NotificationManager::class.java) as NotificationManager
+//        notificationManager.notify(notiId, notification)
+            startNoiseAlarm()
+            startForeground(notiId, notification)
+
         return START_STICKY
     }
+
 
     private fun startNoiseAlarm() {
         mediaPlayer = MediaPlayer.create(this, R.raw.smart_alarm)
@@ -35,30 +45,37 @@ class NoiseAlarmService : Service() {
         mediaPlayer.start()
     }
 
-    private fun createNotification(intent: Intent?): Notification {
+
+    private fun createNotification(title : String, time: String, notiId : Int,
+                                   dbId : Long): Notification {
         val notificationIntent = Intent(this, MainActivity::class.java)
-        val notiId = intent?.getIntExtra("notificationId", 101) ?: 101
-        val dbId = intent?.getLongExtra("id", -1) ?: -1
-        val title = intent?.getStringExtra("name") ?: ""
-        val time = intent?.getStringExtra("dateTime")?:""
         Log.d("Alarm Title Received Noti", "Name : $title at $time")
         val icon = R.drawable.ic_launcher_background
 
         val pendingIntent =
-            PendingIntent.getActivity(this, 0, notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.getActivity(
+                this, 0, notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
 
         val cancelIntent = Intent(this, CancelReceiver::class.java)
 
         cancelIntent.putExtra("notificationId", notiId)
         cancelIntent.putExtra("id", dbId)
         cancelIntent.putExtra("hideNotification", true)
-        val cancelPendingIntent = PendingIntent.getBroadcast(this,
+        val cancelPendingIntent = PendingIntent.getBroadcast(
+            this,
             dbId.hashCode(), cancelIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
-        val notificationManager = getSystemService(NotificationManager::class.java) as NotificationManager
-        val channel = NotificationChannel(notiId.toString(), "Alarm Reminder", NotificationManager.IMPORTANCE_HIGH)
+        val notificationManager =
+            getSystemService(NotificationManager::class.java) as NotificationManager
+        val channel = NotificationChannel(
+            notiId.toString(),
+            "Alarm Reminder",
+            NotificationManager.IMPORTANCE_HIGH
+        )
         notificationManager.createNotificationChannel(channel)
 
 
@@ -72,7 +89,11 @@ class NoiseAlarmService : Service() {
             .setGroup(GROUP_MESSAGE)
             .setAutoCancel(false)
             .setOngoing(true)
-            .addAction(com.google.android.material.R.drawable.ic_clear_black_24, "Cancel Alarm", cancelPendingIntent)
+            .addAction(
+                com.google.android.material.R.drawable.ic_clear_black_24,
+                "Cancel Alarm",
+                cancelPendingIntent
+            )
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .build()
     }
@@ -84,7 +105,6 @@ class NoiseAlarmService : Service() {
         }
         mediaPlayer.release()
     }
-
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }

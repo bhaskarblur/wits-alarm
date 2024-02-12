@@ -1,5 +1,6 @@
 package com.bhaskarblur.alarmapp.presentation.AlarmsScreen.widgets
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -8,11 +9,15 @@ import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.MaterialDialogState
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun DatePicker(
@@ -20,7 +25,7 @@ fun DatePicker(
     currentTime: LocalTime?,
     dateDialogState: MaterialDialogState,
     timeDialogState: MaterialDialogState, onDatePicked: (LocalDate) -> Unit,
-    onTimePicked: (LocalTime, LocalDateTime) -> Unit, hasToChangeTime: Boolean,
+    onTimePicked: (LocalTime, Long, LocalDateTime) -> Unit, hasToChangeTime: Boolean,
     onTimeChanged: (Long, LocalDateTime) -> Unit
 ) {
     val selectedDate = remember {
@@ -60,22 +65,21 @@ fun DatePicker(
             title = "Pick a time",
 
         ) { time ->
+
             val selectedDateTime = LocalDateTime.of(selectedDate.value, time)
-
+            val calendar = TimeUtil.calendar
+            calendar.set(Calendar.YEAR, selectedDateTime.year)
+            calendar.set(Calendar.MONTH, selectedDateTime.monthValue -1)
+            calendar.set(Calendar.DATE, selectedDateTime.dayOfMonth)
+            calendar.set(Calendar.HOUR_OF_DAY, time.hour)
+            calendar.set(Calendar.MINUTE, selectedDateTime.minute)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
+            val timeMillis = calendar.timeInMillis
             if (hasToChangeTime) {
-                val timeMillis = TimeUtil.timeFormat.parse(
-                    DateTimeFormatter
-                        .ofPattern("MMM dd yyyy")
-                        .format(selectedDate.value).toString().plus(
-                            DateTimeFormatter
-                                .ofPattern(", hh:mm")
-                                .format(time)
-                        )
-                )?.time ?: 0L
-
                 onTimeChanged(timeMillis, selectedDateTime ?: LocalDateTime.now())
             } else {
-                onTimePicked(time, selectedDateTime ?: LocalDateTime.now())
+                onTimePicked(time,timeMillis, selectedDateTime ?: LocalDateTime.now())
             }
         }
     }

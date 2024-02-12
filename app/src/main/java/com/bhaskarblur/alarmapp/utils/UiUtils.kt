@@ -8,7 +8,7 @@ object UiUtils {
 
     fun getDateTime(s: String): String? {
         return try {
-            val sdf: SimpleDateFormat = SimpleDateFormat("MMM dd, yyyy , hh:mm:ss", Locale.getDefault())
+            val sdf: SimpleDateFormat = SimpleDateFormat("MMM dd, yyyy , hh:mm:ss a", Locale.getDefault())
             val netDate = Date(s.toLong())
             sdf.format(netDate)
         } catch (e: Exception) {

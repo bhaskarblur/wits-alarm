@@ -16,6 +16,8 @@ interface AlarmDAO {
     @Query("SELECT * from alarms")
     fun getAll(): List<AlarmEntity>
 
+    @Query("SELECT * from alarms where id LIKE :id")
+    fun getAlarmById(id:Long): AlarmEntity
     @Insert
     fun insert(alarm: AlarmEntity) : Long
 

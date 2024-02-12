@@ -52,6 +52,7 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.work:work-runtime:2.7.0")
     implementation ("io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc")
     implementation ("com.github.skydoves:colorpicker-compose:1.0.0")
     implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc01")

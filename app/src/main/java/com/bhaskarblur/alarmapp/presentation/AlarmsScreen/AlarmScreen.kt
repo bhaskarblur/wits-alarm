@@ -63,7 +63,7 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
                     .ofPattern("MMM dd yyyy")
                     .format(pickedDate.value).toString().plus(
                         DateTimeFormatter
-                            .ofPattern(", hh:mm")
+                            .ofPattern(", hh:mm a")
                             .format(pickedTime.value)
                     )
             )?.time ?: 0L
@@ -123,21 +123,21 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
             .ofPattern("MMM dd yyyy")
             .format(pickedDate.value).toString().plus(
                 DateTimeFormatter
-                    .ofPattern(", hh:mm")
+                    .ofPattern(", hh:mm a")
                     .format(pickedTime.value)
             )
 
-        with(TimeUtil.timeFormat) {
-            pickedDateTimeStamp.value = parse(
-                DateTimeFormatter
-                    .ofPattern("MMM dd yyyy")
-                    .format(pickedDate.value).toString().plus(
-                        DateTimeFormatter
-                            .ofPattern(", hh:mm")
-                            .format(pickedTime.value)
-                    )
-            )?.time ?: 0L
-        }
+//        with(TimeUtil.timeFormat) {
+//            pickedDateTimeStamp.value = parse(
+//                DateTimeFormatter
+//                    .ofPattern("MMM dd yyyy")
+//                    .format(pickedDate.value).toString().plus(
+//                        DateTimeFormatter
+//                            .ofPattern(", hh:mm a")
+//                            .format(pickedTime.value)
+//                    )
+//            )?.time ?: 0L
+//        }
         Log.d("pickedTimeStamp", pickedDateTimeStamp.value.toString())
     }
     DatePicker(
@@ -148,10 +148,11 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
         onDatePicked = {
             pickedDate.value = it
         },
-        onTimePicked = { localTime: LocalTime, localDateTime: LocalDateTime ->
+        onTimePicked = { localTime: LocalTime, time : Long, localDateTime: LocalDateTime ->
              if(localDateTime.isAfter(LocalDateTime.now()) ||
                 localDateTime.isEqual(LocalDateTime.now())) {
                 pickedTime.value = localTime
+                 pickedDateTimeStamp.value = time
 
             } else {
                 viewModel.emitUiEvent(
@@ -210,11 +211,20 @@ fun AlarmScreen(viewModel: AlarmViewModel) {
                     .ofPattern("MMM dd yyyy")
                     .format(LocalDate.now()).toString().plus(
                         DateTimeFormatter
-                            .ofPattern(", hh:mm")
+                            .ofPattern(", hh:mm a")
                             .format(LocalTime.now())
                     )
                 dateTimeText.value = currTime
-                pickedDateTimeStamp.value = TimeUtil.timeFormat.parse(currTime)?.time ?: 0
+                pickedDateTimeStamp.value =
+                    TimeUtil.timeFormat.parse(
+                        DateTimeFormatter
+                            .ofPattern("MMM dd yyyy")
+                            .format(LocalDate.now()).toString().plus(
+                                DateTimeFormatter
+                                    .ofPattern(", hh:mm a")
+                                    .format(LocalTime.now())
+                            )
+                    )?.time ?: 0L
 
                 openDialog.value = false
             } else {

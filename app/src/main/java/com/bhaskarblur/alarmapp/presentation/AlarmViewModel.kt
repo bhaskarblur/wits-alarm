@@ -9,11 +9,11 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bhaskarblur.alarmapp.Alarms.AlarmReceiver
+import com.bhaskarblur.alarmapp.alarms.AlarmReceiver
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 import com.bhaskarblur.alarmapp.domain.usecases.AlarmUseCase
 import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.AlarmsState
-import com.bhaskarblur.alarmapp.utils.TimeUtil.getCurrentTimeAndCompareWithAlarmTime
+import com.bhaskarblur.alarmapp.utils.TimeUtil
 import com.bhaskarblur.alarmapp.utils.UiUtils
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,10 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -46,7 +43,7 @@ class AlarmViewModel
     fun toggleAlarm(id : Long, isActive : Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             alarmUseCase.toggleAlarm(id, isActive).collectLatest { result ->
-                Log.d("togglingAlarmFromVM", result.data.toString())
+                Log.d("togglingAlarmFromVM", "")
                 when(result.data) {
                     true -> {
                         val alarm = _alarmsList.value.alarms.find {
@@ -194,16 +191,12 @@ class AlarmViewModel
 
     @SuppressLint("ScheduleExactAlarm")
     private fun setAlarm(isActive: Boolean, id: Long, name: String, time : Long) {
-
         Log.d("SettingAlarm", isActive.toString())
-        val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java) as AlarmManager
-
-        val cal : Calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault())
-        cal.timeInMillis = time
-        Log.d("timeText", "${UiUtils.getDateTime(cal.timeInMillis.toString())}")
-        
+        Log.d("timeText", "${UiUtils.getDateTime(time.toString())}")
+        Log.d("timeMillis", time.toString())
 
         val intent = Intent(context, AlarmReceiver::class.java)
+
         intent.putExtra("INTENT_NOTIFY", true)
         intent.putExtra("id", id)
         intent.putExtra("name", name)
@@ -211,11 +204,11 @@ class AlarmViewModel
 
         val pendingIntent = PendingIntent.getBroadcast(context, id.toInt(),
             intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
         try {
+            val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java) as AlarmManager
         if (isActive) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
-                cal.timeInMillis, pendingIntent)
+               time, pendingIntent)
         } else {
             alarmManager.cancel(pendingIntent)
         }
