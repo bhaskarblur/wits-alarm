@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.BackoffPolicy
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.bhaskarblur.alarmapp.alarms.AlarmReceiver
@@ -239,7 +240,12 @@ class AlarmViewModel
                 .setInputData(inputData)
                 .build()
 
-            WorkManager.getInstance(context).enqueue(alarmWorkRequest)
+            WorkManager.getInstance(context)
+                .beginUniqueWork(
+                    id.toString(),
+                    ExistingWorkPolicy.APPEND,
+                    alarmWorkRequest
+                ).enqueue()
 
             Log.d("AlarmWorkEnqueued", "true")
         } else {
