@@ -6,8 +6,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -25,7 +24,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AlarmApp"
-        tools:targetApi="31">
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="tiramisu">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -39,8 +39,12 @@
 
         <service android:name=".alarms.service.NoiseAlarmService"
             android:foregroundServiceType="specialUse"
-            android:exported="false"
-            />
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.bhaskarblur.alarmapp.ACTION_START_SERVICE" />
+            </intent-filter>
+
+        </service>
 
         <receiver android:name=".alarms.AlarmReceiver"
             android:enabled="true"
@@ -52,6 +56,7 @@
                 <action android:name="your.package.ACTION_ALARM" />
             </intent-filter>
         </receiver>
+
 
         <receiver android:name=".alarms.CancelReceiver"
             android:enabled="true"

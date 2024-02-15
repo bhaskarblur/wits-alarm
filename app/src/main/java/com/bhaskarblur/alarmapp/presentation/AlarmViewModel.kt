@@ -9,11 +9,15 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.BackoffPolicy
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.bhaskarblur.alarmapp.alarms.AlarmReceiver
+import com.bhaskarblur.alarmapp.alarms.workManager.AlarmWorker
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 import com.bhaskarblur.alarmapp.domain.usecases.AlarmUseCase
 import com.bhaskarblur.alarmapp.presentation.AlarmsScreen.AlarmsState
-import com.bhaskarblur.alarmapp.utils.TimeUtil
 import com.bhaskarblur.alarmapp.utils.UiUtils
 import com.bhaskarblur.dictionaryapp.core.utils.Resources
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,11 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -55,7 +55,7 @@ class AlarmViewModel
                             }?.isActive = isActive
                         }
                         alarm?.let {
-                            setAlarm(
+                            setAlarmWithWorkManager(
                                 isActive = isActive,
                                 id = alarm.id, time = alarm.time,
                                 name = alarm.name)
@@ -95,13 +95,13 @@ class AlarmViewModel
                         }
                         alarm?.let {
                             // Cancel old alarm time
-                            setAlarm(
+                            setAlarmWithWorkManager(
                                 isActive = false,
                                 id = alarm.id, time = alarm.time,
                                 name = alarm.name)
 
                             // Set new alarm time
-                            setAlarm(
+                            setAlarmWithWorkManager(
                                 isActive = true,
                                 id = alarm.id, time = time,
                                 name = alarm.name)
@@ -139,7 +139,7 @@ class AlarmViewModel
                         _alarmsList.value = _alarmsList.value.apply {
                             alarms.add(alarmToBeAdded)
                         }
-                        setAlarm(
+                        setAlarmWithWorkManager(
                             isActive = alarmToBeAdded.isActive,
                             id = alarmToBeAdded.id, time = alarmToBeAdded.time,
                             name = alarmToBeAdded.name)
@@ -214,6 +214,38 @@ class AlarmViewModel
         }
         } catch (e : Exception) {
             e.printStackTrace()
+        }
+    }
+
+    private fun setAlarmWithWorkManager(isActive: Boolean, id: Long, name: String, time : Long) {
+        val currentTimeMillis = System.currentTimeMillis()
+
+        val delayInMilliseconds = time - currentTimeMillis
+
+        if(isActive) {
+            val inputData = Data.Builder()
+                .putLong("id", id)
+                .putString("name", name)
+                .putString("dateTime", "Your alarm at ${UiUtils.getDateTime(time.toString())}")
+                .build()
+
+            val backoffCriteria = BackoffPolicy.EXPONENTIAL
+            val backoffDelay = 10_000L
+
+            val alarmWorkRequest = OneTimeWorkRequestBuilder<AlarmWorker>()
+                .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
+                .setBackoffCriteria(backoffCriteria, backoffDelay, TimeUnit.MILLISECONDS)
+                .addTag(id.toString())
+                .setInputData(inputData)
+                .build()
+
+            WorkManager.getInstance(context).enqueue(alarmWorkRequest)
+
+            Log.d("AlarmWorkEnqueued", "true")
+        } else {
+            WorkManager.getInstance(context).cancelAllWorkByTag(
+                id.toString())
+            Log.d("AlarmWorkCancelled", "true")
         }
     }
 }

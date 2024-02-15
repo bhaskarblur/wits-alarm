@@ -7,7 +7,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bhaskarblur.alarmapp.alarms.service.NoiseAlarmService
+import com.bhaskarblur.alarmapp.alarms.workManager.AlarmWorker
+import com.bhaskarblur.alarmapp.alarms.workManager.AlarmWorker.Companion.ACTION_STOP_SOUND
 import com.example.todolistinkotlin.database.AlarmDatabase
 
 
@@ -21,6 +24,8 @@ class CancelReceiver : BroadcastReceiver() {
         val hideNotification = intent?.getBooleanExtra("hideNotification", false)
 
         context?.let {
+            val stopSoundIntent = Intent(ACTION_STOP_SOUND)
+            LocalBroadcastManager.getInstance(context).sendBroadcast(stopSoundIntent)
             val stopServiceIntent = Intent(context, NoiseAlarmService::class.java)
             context.stopService(stopServiceIntent)
             val broadcastIntent = Intent("com.your.package.ACTION_CANCEL_ALARM")
@@ -45,10 +50,14 @@ class CancelReceiver : BroadcastReceiver() {
 
         alarmManager.cancel(pendingIntent)
         context.let {
+            val stopSoundIntent = Intent(context, AlarmWorker::class.java)
+            stopSoundIntent.action = AlarmWorker.ACTION_STOP_SOUND
+            context.startService(stopSoundIntent)
             alarmDatabase?.alarmsDto()?.toggleIsActive(id = dbId, isActive = false)
         }
 
     }
+
 
     private fun initiateDatabase(context: Context) {
         if (alarmDatabase == null)
