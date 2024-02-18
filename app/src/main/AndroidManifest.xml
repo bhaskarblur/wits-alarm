@@ -43,7 +43,11 @@
             <intent-filter>
                 <action android:name="com.bhaskarblur.alarmapp.ACTION_START_SERVICE" />
             </intent-filter>
+        </service>
 
+        <service android:name=".alarms.service.AlarmSchedulerService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
         </service>
 
         <receiver android:name=".alarms.AlarmReceiver"

@@ -15,6 +15,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.bhaskarblur.alarmapp.alarms.AlarmReceiver
+import com.bhaskarblur.alarmapp.alarms.service.AlarmSchedulerService
 import com.bhaskarblur.alarmapp.alarms.workManager.AlarmWorker
 import com.bhaskarblur.alarmapp.domain.models.AlarmModel
 import com.bhaskarblur.alarmapp.domain.usecases.AlarmUseCase
@@ -197,7 +198,6 @@ class AlarmViewModel
         Log.d("timeMillis", time.toString())
 
         val intent = Intent(context, AlarmReceiver::class.java)
-
         intent.putExtra("INTENT_NOTIFY", true)
         intent.putExtra("id", id)
         intent.putExtra("name", name)
@@ -223,6 +223,16 @@ class AlarmViewModel
 
         val delayInMilliseconds = time - currentTimeMillis
 
+        val intent = Intent(context, AlarmSchedulerService::class.java).apply {
+            putExtra("id", id)
+            putExtra("name", name)
+            putExtra("scheduleTime", delayInMilliseconds)
+            putExtra("dateTime", "Your alarm at ${UiUtils.getDateTime(time.toString())}")
+            putExtra("isActive", isActive)
+        }
+
+        context.startService(intent)
+        return
         if(isActive) {
             val inputData = Data.Builder()
                 .putLong("id", id)
