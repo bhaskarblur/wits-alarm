@@ -29,7 +29,7 @@ class AlarmSchedulerService : LifecycleService() {
         Log.d(
             "YourService",
             "Received extras - id: $id, name: $name, scheduleTime: $scheduleTime, " +
-                    "dateTime: ${UiUtils.getDateTime(dateTime.toString())},  isActive: $active"
+                    "dateTime: ${dateTime},  isActive: $active"
         )
         try {
             if(name.isNullOrEmpty().not()) {
@@ -39,7 +39,7 @@ class AlarmSchedulerService : LifecycleService() {
             e.printStackTrace()
         }
 
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -84,6 +84,5 @@ class AlarmSchedulerService : LifecycleService() {
             )
             Log.d("AlarmWorkCancelled", "true")
         }
-        stopSelf()
     }
 }
