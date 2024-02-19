@@ -232,36 +232,5 @@ class AlarmViewModel
         }
 
         context.startService(intent)
-        return
-        if(isActive) {
-            val inputData = Data.Builder()
-                .putLong("id", id)
-                .putString("name", name)
-                .putString("dateTime", "Your alarm at ${UiUtils.getDateTime(time.toString())}")
-                .build()
-
-            val backoffCriteria = BackoffPolicy.EXPONENTIAL
-            val backoffDelay = 10_000L
-
-            val alarmWorkRequest = OneTimeWorkRequestBuilder<AlarmWorker>()
-                .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
-                .setBackoffCriteria(backoffCriteria, backoffDelay, TimeUnit.MILLISECONDS)
-                .addTag(id.toString())
-                .setInputData(inputData)
-                .build()
-
-            WorkManager.getInstance(context)
-                .beginUniqueWork(
-                    id.toString(),
-                    ExistingWorkPolicy.APPEND,
-                    alarmWorkRequest
-                ).enqueue()
-
-            Log.d("AlarmWorkEnqueued", "true")
-        } else {
-            WorkManager.getInstance(context).cancelAllWorkByTag(
-                id.toString())
-            Log.d("AlarmWorkCancelled", "true")
-        }
     }
 }
